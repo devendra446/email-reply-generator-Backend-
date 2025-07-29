@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI Email Reply Generator</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* Responsive basics */
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #f8f9fa;
+        }
+
+        .container {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          padding: 1rem;
+          max-width: 1200px;
+          margin: auto;
+        }
+
+        .app-header {
+          text-align: center;
+          padding: 1.5rem 1rem;
+          background-color: #ffffff;
+          border-radius: 12px;
+          margin-bottom: 1.5rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+
+        .logo h1 {
+          font-size: 1.5rem;
+          margin: 0;
+        }
+
+        .header-description {
+          margin-top: 0.5rem;
+          color: #555;
+        }
+
+        .app-main {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        .card {
+          background-color: white;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+          font-weight: bold;
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+
+        .textarea-input,
+        select {
+          width: 100%;
+          padding: 0.75rem;
+          font-size: 1rem;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+        }
+
+        .character-counter {
+          text-align: right;
+          margin-top: 0.25rem;
+          font-size: 0.875rem;
+          color: #666;
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .btn {
+          padding: 0.75rem 1.5rem;
+          font-size: 1rem;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+
+        .btn--primary {
+          background-color: #007bff;
+          color: white;
+        }
+
+        .btn--outline {
+          background-color: transparent;
+          color: #007bff;
+          border: 1px solid #007bff;
+        }
+
+        .result-card {
+          display: none;
+          flex-direction: column;
+        }
+
+        .result-title {
+          font-size: 1.25rem;
+        }
+
+        .generated-text {
+          white-space: pre-wrap;
+          background: #f1f1f1;
+          padding: 1rem;
+          border-radius: 8px;
+          font-family: monospace;
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 2rem;
+          color: #777;
+        }
+
+        .empty-icon {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+        }
+
+        .toast {
+          position: fixed;
+          bottom: 1rem;
+          right: 1rem;
+          background: #28a745;
+          color: white;
+          padding: 0.75rem 1.25rem;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .toast.hidden,
+        .result-card.hidden {
+          display: none;
+        }
+
+        @media (min-width: 768px) {
+          .app-main {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .btn {
+            width: 100%;
+          }
+
+          .logo {
+            flex-direction: column;
+          }
+
+          .form-label .label-icon,
+          .btn-icon {
+            display: none;
+          }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <header class="app-header">
+        <div class="logo">
+            <span class="logo-icon">✉️</span>
+            <h1>AI Email Reply Generator</h1>
+        </div>
+        <p class="header-description">Generate professional email replies with AI assistance</p>
+    </header>
+
+    <main class="app-main">
+        <section class="form-section">
+            <div class="card">
+                <div class="form-group">
+                    <label for="emailContent" class="form-label">
+                        <span class="label-icon">📝</span>
+                        Original Email
+                    </label>
+                    <textarea id="emailContent" class="textarea-input" rows="6" placeholder="Paste your email content here..." maxlength="2000"></textarea>
+                    <div class="character-counter"><span id="charCount">0</span>/2000</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tone" class="form-label">
+                        <span class="label-icon">🎭</span>
+                        Select Tone
+                    </label>
+                    <select id="tone">
+                        <option value="">Neutral - Balanced and professional tone</option>
+                        <option value="formal">Formal - Professional and respectful</option>
+                        <option value="friendly">Friendly - Warm and approachable</option>
+                        <option value="apologetic">Apologetic - Sorry and understanding</option>
+                        <option value="confident">Confident - Assertive and sure</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="generateBtn" class="btn btn--primary">
+                        🚀 Generate Reply
+                        <div class="loading-spinner hidden"><div class="spinner"></div></div>
+                    </button>
+                    <button id="clearBtn" class="btn btn--outline">🗑️ Clear All</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="result-section">
+            <div id="result" class="card result-card hidden">
+                <div class="result-header">
+                    <h2 class="result-title">✨ Generated Reply</h2>
+                    <div class="result-actions">
+                        <button id="copyBtn" class="btn btn--sm btn--outline copy-btn">📋 Copy</button>
+                    </div>
+                    <div id="toneIndicator" class="status status--info"></div>
+                </div>
+                <div class="generated-content">
+                    <pre id="generatedText" class="generated-text"></pre>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">💭</div>
+                <h3>Ready to Generate</h3>
+                <p>Enter your email content and select a tone to get started</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast hidden">
+        ✅ Reply copied to clipboard!
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
