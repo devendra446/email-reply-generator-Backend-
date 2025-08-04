@@ -8,7 +8,15 @@ public class EmailRequest {
         return tone;
     }
 
+    public void setTone(String tone) {
+        this.tone = tone;
+    }
+
     public String getEmailContent() {
         return emailContent;
+    }
+
+    public void setEmailContent(String emailContent) {
+        this.emailContent = emailContent;
     }
 }
