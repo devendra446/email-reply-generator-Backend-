@@ -1,10 +1,10 @@
-# Use Maven to build the app
+# Stage 1: Build the Spring Boot app
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Use JRE to run the jar
+# Stage 2: Run the JAR
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
